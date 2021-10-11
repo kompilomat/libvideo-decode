@@ -50,7 +50,7 @@
 #include "vdec_mediacodec.h"
 #include "vdec_videocoremmal.h"
 #include "vdec_videotoolbox.h"
-
+#include "vdec_nvmm.h"
 
 struct vdec_derived;
 
