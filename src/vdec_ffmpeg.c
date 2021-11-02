@@ -420,7 +420,7 @@ static int vdec_ffmpeg_buffer_push_one(struct vdec_ffmpeg *self,
 		vbuf_unref(in_buf);
 		return 0;
 	}
-
+	
 	/* Copy the buffer adding SPS/PPS if needed */
 	if (self->needs_ps) {
 		struct vbuf_buffer *buf;
@@ -430,6 +430,8 @@ static int vdec_ffmpeg_buffer_push_one(struct vdec_ffmpeg *self,
 			return 0;
 		in_buf = buf;
 		self->needs_ps = 0;
+		self->avcodec->width = self->base->width;
+		self->avcodec->height = self->base->height;
 	}
 
 	/* Debug files */
@@ -744,6 +746,17 @@ int vdec_ffmpeg_new(struct vdec_decoder *base)
 			      (ver >> 8) & 0xFF,
 			      ver & 0xFF);
 			self->output_format = VDEC_OUTPUT_FORMAT_NV12;
+		}
+	}
+	if (codec == NULL) {
+		codec = avcodec_find_decoder_by_name("h264_nvv4l2dec");
+		if (codec != NULL) {
+			ULOGI("libavcodec version=%u.%u.%u - using "
+			      "h264_nvv4l2dec (Nvidia Jetson) H.264 hwaccel",
+			      (ver >> 16) & 0xFF,
+			      (ver >> 8) & 0xFF,
+			      ver & 0xFF);
+			self->output_format = VDEC_OUTPUT_FORMAT_I420;
 		}
 	}
 	if (codec == NULL) {
